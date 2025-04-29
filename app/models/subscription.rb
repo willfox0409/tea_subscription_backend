@@ -6,4 +6,5 @@ class Subscription < ApplicationRecord
   validates :status, presence: true, inclusion: { in: ["active", "cancelled"] }
 
   scope :with_status, ->(status) { where(status: status) }
+  scope :with_customer_and_tea, -> { includes(:customer, :tea) }
 end
