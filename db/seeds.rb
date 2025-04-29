@@ -8,6 +8,14 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
+puts "🌱 Clearing old data..."
+
+Subscription.destroy_all
+Tea.destroy_all
+Customer.destroy_all
+
+puts "🌱 Old data cleared!"
+
 # CUSTOMERS
 
 Customer.create!([
