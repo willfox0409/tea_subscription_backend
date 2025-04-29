@@ -120,5 +120,22 @@ RSpec.describe "Api::V1::Subscriptions", type: :request do
       expect(error).to have_key(:error)
       expect(error[:error]).to match(/param is missing or the value is empty: subscription/)
     end
+
+    it "returns a 422 if status is invalid" do
+      customer = Customer.create!(first_name: "Linda", last_name: "McCartney", email: "linda@test.com", address: "123 Veggie Blvd")
+      tea = Tea.create!(title: "Chamomile Calm", description: "Smooth and sleepy", temperature: "190°F", brew_time: "5 minutes")
+      subscription = Subscription.create!(title: "Peace Pack", price: 15.00, status: "active", frequency: "monthly", customer: customer, tea: tea)
+  
+      patch "/api/v1/subscriptions/#{subscription.id}", params: {
+        subscription: { status: "maybe" } 
+      }
+  
+      expect(response).to have_http_status(:unprocessable_entity)
+  
+      error = JSON.parse(response.body, symbolize_names: true)
+  
+      expect(error).to have_key(:error)
+      expect(error[:error]).to match(/Validation failed: Status is not included/)
+    end
   end
 end
