@@ -95,5 +95,30 @@ RSpec.describe "Api::V1::Subscriptions", type: :request do
       expect(updated_sub[:data][:attributes][:title]).to eq("Sergeant's Brew")
       expect(updated_sub[:data][:attributes][:frequency]).to eq("weekly")
     end
+
+    it "returns a 404 if subscription is not found" do
+      patch "/api/v1/subscriptions/999999", params: { subscription: {status: "cancelled"} }
+  
+      expect(response).to have_http_status(:not_found)
+  
+      error = JSON.parse(response.body, symbolize_names: true)
+  
+      expect(error).to have_key(:error)
+      expect(error[:error]).to match(/Couldn't find Subscription/)
+    end
+
+    it "returns a 400 if subscription params are missing" do
+      customer = Customer.create!(first_name: "Yoko", last_name: "Ono", email: "yoko@peace.com", address: "Ocean Ave")
+      tea = Tea.create!(title: "Zen Blend", description: "delicious!", temperature: "185°F", brew_time: "3 minutes")
+      subscription = Subscription.create!(title: "Let it Be", price: 17.00, status: "active", frequency: "monthly", customer: customer, tea: tea)
+  
+      patch "/api/v1/subscriptions/#{subscription.id}", params: { status: "cancelled" }
+  
+      expect(response).to have_http_status(:bad_request)
+  
+      error = JSON.parse(response.body, symbolize_names: true)
+      expect(error).to have_key(:error)
+      expect(error[:error]).to match(/param is missing or the value is empty: subscription/)
+    end
   end
 end
