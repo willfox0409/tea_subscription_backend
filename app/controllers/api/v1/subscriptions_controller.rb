@@ -1,6 +1,10 @@
 class Api::V1::SubscriptionsController < ApplicationController
   def index
-    subscriptions = Subscription.includes(:customer, :tea)
+    if params[:status]
+      subscriptions = Subscription.includes(:customer, :tea).where(status: params[:status])
+    else
+      subscriptions = Subscription.includes(:customer, :tea).all
+    end
     render json: SubscriptionSerializer.new(subscriptions).serializable_hash, status: :ok
   end
 
