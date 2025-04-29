@@ -62,6 +62,17 @@ RSpec.describe "Api::V1::Subscriptions", type: :request do
       expect(sub[:data][:attributes][:tea]).to have_key(:id)
       expect(sub[:data][:attributes][:tea][:attributes][:title]).to eq("Green Harmony")
     end
+
+    it "returns a 404 if subscription is not found" do
+      get "/api/v1/subscriptions/999999"
+  
+      expect(response).to have_http_status(:not_found)
+  
+      error = JSON.parse(response.body, symbolize_names: true)
+  
+      expect(error).to have_key(:error)
+      expect(error[:error]).to match(/Couldn't find Subscription/)
+    end
   end
 
   describe "PATCH /update" do
