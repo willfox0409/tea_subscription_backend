@@ -36,43 +36,53 @@ RSpec.describe "Api::V1::Subscriptions", type: :request do
     end
   end
 
-  require 'rails_helper'
+  describe "GET /show" do
+    it "returns a single subscription with customer and tea nested" do
+      customer = Customer.create!(first_name: "George", last_name: "Harrison", email: "george@test.com", address: "789 Example Rd")
+      tea = Tea.create!(title: "Green Harmony", description: "Smooth and mellow", temperature: "175°F", brew_time: "3 minutes")
+      subscription = Subscription.create!(title: "Mystic Morning", price: 12.50, status: "active", frequency: "monthly", customer: customer, tea: tea)
 
-  RSpec.describe "Api::V1::Subscriptions", type: :request do
-    describe "GET /show" do
-      it "returns a single subscription with customer and tea nested" do
-        customer = Customer.create!(first_name: "George", last_name: "Harrison", email: "george@test.com", address: "789 Example Rd")
-        tea = Tea.create!(title: "Green Harmony", description: "Smooth and mellow", temperature: "175°F", brew_time: "3 minutes")
-        subscription = Subscription.create!(title: "Mystic Morning", price: 12.50, status: "active", frequency: "monthly", customer: customer, tea: tea)
-  
-        get "/api/v1/subscriptions/#{subscription.id}"
-  
-        expect(response).to be_successful
-  
-        sub = JSON.parse(response.body, symbolize_names: true)
-  
-        expect(sub[:data]).to have_key(:id)
-        expect(sub[:data][:id]).to eq(subscription.id.to_s)
-        expect(sub[:data]).to have_key(:type)
-        expect(sub[:data][:attributes]).to have_key(:title)
-        expect(sub[:data][:attributes][:title]).to eq("Mystic Morning")
-        expect(sub[:data][:attributes]).to have_key(:status)
-        expect(sub[:data][:attributes][:status]).to eq("active")
-  
-        expect(sub[:data][:attributes][:customer]).to have_key(:id)
-        expect(sub[:data][:attributes][:customer][:attributes][:first_name]).to eq("George")
-  
-        expect(sub[:data][:attributes][:tea]).to have_key(:id)
-        expect(sub[:data][:attributes][:tea][:attributes][:title]).to eq("Green Harmony")
-      end
+      get "/api/v1/subscriptions/#{subscription.id}"
+
+      expect(response).to be_successful
+
+      sub = JSON.parse(response.body, symbolize_names: true)
+
+      expect(sub[:data]).to have_key(:id)
+      expect(sub[:data][:id]).to eq(subscription.id.to_s)
+      expect(sub[:data]).to have_key(:type)
+      expect(sub[:data][:attributes]).to have_key(:title)
+      expect(sub[:data][:attributes][:title]).to eq("Mystic Morning")
+      expect(sub[:data][:attributes]).to have_key(:status)
+      expect(sub[:data][:attributes][:status]).to eq("active")
+
+      expect(sub[:data][:attributes][:customer]).to have_key(:id)
+      expect(sub[:data][:attributes][:customer][:attributes][:first_name]).to eq("George")
+
+      expect(sub[:data][:attributes][:tea]).to have_key(:id)
+      expect(sub[:data][:attributes][:tea][:attributes][:title]).to eq("Green Harmony")
     end
   end
 
-  describe "GET /update" do
+  describe "PATCH /update" do
     it "can cancel a subscription" do
-      get "/api/v1/subscriptions/update"
-      expect(response).to have_http_status(:success)
+      customer = Customer.create!(first_name: "Paul", last_name: "McCartney", email: "paul@test.com", address: "456 Abbey Ln")
+      tea = Tea.create!(title: "Peppermint Peace", description: "Minty and fresh", temperature: "190°F", brew_time: "4 minutes")
+      subscription = Subscription.create!(title: "Sergeant's Brew", price: 18.00, status: "active", frequency: "weekly", customer: customer, tea: tea)
+
+      patch "/api/v1/subscriptions/#{subscription.id}", params: {
+        subscription: { status: "cancelled" }
+      }
+
+      expect(response).to be_successful
+
+      updated_sub = JSON.parse(response.body, symbolize_names: true)
+
+      expect(updated_sub[:data]).to have_key(:id)
+      expect(updated_sub[:data][:id]).to eq(subscription.id.to_s)
+      expect(updated_sub[:data][:attributes][:status]).to eq("cancelled")
+      expect(updated_sub[:data][:attributes][:title]).to eq("Sergeant's Brew")
+      expect(updated_sub[:data][:attributes][:frequency]).to eq("weekly")
     end
   end
-
 end
