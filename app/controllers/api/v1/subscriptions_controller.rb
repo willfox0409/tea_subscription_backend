@@ -7,4 +7,10 @@ class Api::V1::SubscriptionsController < ApplicationController
 
   def update
   end
+
+  private
+
+  def subscription_params
+    
+  end
 end
