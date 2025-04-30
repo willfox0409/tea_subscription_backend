@@ -2,37 +2,38 @@ require 'rails_helper'
 
 RSpec.describe "Api::V1::Subscriptions", type: :request do
   describe "GET /index" do
-    it "returns a list of subscriptions" do
-      customer1 = Customer.create!(first_name: "John", last_name: "Lennon", email: "john@yahoo.com", address: "123 Test St")
-      customer2 = Customer.create!(first_name: "Ringo", last_name: "Starr", email: "ringo@aol.com", address: "345 Demo St")
+    it "returns a list of subscriptions with slim attributes" do
+      customer = Customer.create!(first_name: "John", last_name: "Lennon", email: "john@example.com", address: "123 Main St")
+      tea = Tea.create!(title: "Green Tea", description: "Light and earthy", temperature: "175°F", brew_time: "3 min")
 
-      tea1 = Tea.create!(title: "English Breakfast", description: "Tasty and strong", temperature: "180°F", brew_time: "4 minutes")
-      tea2 = Tea.create!(title: "Earl Grey", description: "Foggy and bright", temperature: "200°F", brew_time: "3 minutes")
-
-      subscription1 = Subscription.create!(title: "Abbey Road", price: 10.00, status: "active", frequency: "weekly", customer: customer1, tea: tea1)
-      subscription2 = Subscription.create!(title: "Paul's Farm", price: 15.00, status: "active", frequency: "monthly", customer: customer2, tea: tea2)
+      subscriptions = [
+        Subscription.create!(title: "Morning Brew", price: 9.99, status: "active", frequency: "weekly", customer: customer, tea: tea),
+        Subscription.create!(title: "Evening Calm", price: 12.50, status: "cancelled", frequency: "monthly", customer: customer, tea: tea)
+      ]
 
       get "/api/v1/subscriptions"
 
       expect(response).to be_successful
 
-      subscriptions = JSON.parse(response.body, symbolize_names: true)
+      data = JSON.parse(response.body, symbolize_names: true)[:data]
+      expect(data.count).to eq(2)
 
-      expect(subscriptions[:data].count).to eq(2)
+      data.each_with_index do |sub, i|
+        expect(sub).to have_key(:id)
+        expect(sub).to have_key(:type)
+        expect(sub[:type]).to eq("subscription")
 
-      expect(subscriptions[:data].first).to have_key(:id)
-      expect(subscriptions[:data].first).to have_key(:type)
-      expect(subscriptions[:data].first).to have_key(:attributes)
+        attrs = sub[:attributes]
+        expect(attrs).to include(
+          title: subscriptions[i].title,
+          status: subscriptions[i].status,
+          frequency: subscriptions[i].frequency,
+          price: subscriptions[i].price.to_s
+        )
 
-      expect(subscriptions[:data].first[:id]).to eq(subscription1.id.to_s)
-      expect(subscriptions[:data].first[:attributes][:title]).to eq("Abbey Road")
-      expect(subscriptions[:data].first[:attributes][:status]).to eq("active")
-      expect(subscriptions[:data].first[:attributes][:frequency]).to eq("weekly")
-
-      expect(subscriptions[:data].last[:id]).to eq(subscription2.id.to_s)
-      expect(subscriptions[:data].last[:attributes][:title]).to eq("Paul's Farm")
-      expect(subscriptions[:data].last[:attributes][:status]).to eq("active")
-      expect(subscriptions[:data].last[:attributes][:frequency]).to eq("monthly")
+        expect(attrs).not_to have_key(:customer)
+        expect(attrs).not_to have_key(:tea)
+      end
     end
   end
 
