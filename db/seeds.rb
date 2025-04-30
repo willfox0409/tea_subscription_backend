@@ -1,13 +1,3 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-
 puts "🌱 Clearing old data..."
 
 Subscription.destroy_all
@@ -17,7 +7,6 @@ Customer.destroy_all
 puts "🌱 Old data cleared!"
 
 # CUSTOMERS
-
 Customer.create!([
   {
     first_name: "Cate",
@@ -36,11 +25,52 @@ Customer.create!([
     last_name: "Eno",
     email: "eno4eva@aol.com",
     address: "14 Rose Street, Edinburgh, EH2 2QA"
+  },
+  {
+    first_name: "Debbie",
+    last_name: "Harry",
+    email: "debbie@blondie.com",
+    address: "123 Parallel Lines, NYC"
+  },
+  {
+    first_name: "Jimi",
+    last_name: "Hendrix",
+    email: "jimi@purplehaze.org",
+    address: "420 Electric Lady Studios, Seattle"
+  },
+  {
+    first_name: "Robert",
+    last_name: "Plant",
+    email: "stairway@heaven.co.uk",
+    address: "Led Zeppelin Lane, Birmingham"
+  },
+  {
+    first_name: "Stevie",
+    last_name: "Nicks",
+    email: "stevie@dreams.fm",
+    address: "Rhiannon Road, Los Angeles"
+  },
+  {
+    first_name: "David",
+    last_name: "Bowie",
+    email: "ziggy@stardust.com",
+    address: "Starman St, London"
+  },
+  {
+    first_name: "Mick",
+    last_name: "Fleetwood",
+    email: "rumours@mac.co.uk",
+    address: "Tusk Trail, Los Angeles"
+  },
+  {
+    first_name: "George",
+    last_name: "Harrison",
+    email: "quietbeatle@apple.com",
+    address: "Blue Jay Way, LA"
   }
 ])
 
 # TEAS
-
 Tea.create!([
   {
     title: "Morning Mist",
@@ -87,67 +117,90 @@ Tea.create!([
 ])
 
 # SUBSCRIPTIONS
-
-customer1 = Customer.first
-customer2 = Customer.second
-customer3 = Customer.third
-
-tea1 = Tea.find_by(title: "Morning Mist")
-tea2 = Tea.find_by(title: "Highland Chai")
-tea3 = Tea.find_by(title: "Lavender Drift")
-tea4 = Tea.find_by(title: "Dragon's Breath")
-tea5 = Tea.find_by(title: "Foggy London Breakfast")
-tea6 = Tea.find_by(title: "Hearthside Rooibos")
+customers = Customer.all
+teas = Tea.all
 
 Subscription.create!([
   {
-    title: "Monthly Morning Mist",
+    title: "Bowie Blast",
     price: 14.99,
     status: "active",
     frequency: "monthly",
-    customer: customer1,
-    tea: tea1
+    customer: customers[0],
+    tea: teas.find { |t| t.title == "Morning Mist" }
   },
   {
-    title: "Weekly Highland Chai Boost",
+    title: "Green Haze",
     price: 9.99,
     status: "active",
     frequency: "weekly",
-    customer: customer1,
-    tea: tea2
+    customer: customers[1],
+    tea: teas.find { |t| t.title == "Highland Chai" }
   },
   {
-    title: "Evening Lavender Calm",
+    title: "Dreamy Drift",
     price: 12.99,
     status: "cancelled",
     frequency: "monthly",
-    customer: customer2,
-    tea: tea3
+    customer: customers[2],
+    tea: teas.find { |t| t.title == "Lavender Drift" }
   },
   {
-    title: "Dragon's Breath Sampler",
+    title: "Smoke on the Water",
     price: 15.49,
     status: "active",
     frequency: "monthly",
-    customer: customer2,
-    tea: tea4
+    customer: customers[3],
+    tea: teas.find { |t| t.title == "Dragon's Breath" }
   },
   {
     title: "Abbey Road Break Room",
     price: 13.99,
     status: "active",
     frequency: "quarterly",
-    customer: customer3,
-    tea: tea5
+    customer: customers[4],
+    tea: teas.find { |t| t.title == "Foggy London Breakfast" }
   },
   {
-    title: "Winter Rooibos Warmer",
+    title: "Fleetwood Fresh",
     price: 11.49,
     status: "active",
     frequency: "monthly",
-    customer: customer3,
-    tea: tea6
+    customer: customers[5],
+    tea: teas.find { |t| t.title == "Hearthside Rooibos" }
+  },
+  {
+    title: "Green Haze",
+    price: 9.99,
+    status: "cancelled",
+    frequency: "weekly",
+    customer: customers[6],
+    tea: teas.find { |t| t.title == "Morning Mist" }
+  },
+  {
+    title: "Bowie Blast",
+    price: 14.99,
+    status: "active",
+    frequency: "monthly",
+    customer: customers[7],
+    tea: teas.find { |t| t.title == "Morning Mist" }
+  },
+  {
+    title: "Fleetwood Fresh",
+    price: 11.49,
+    status: "cancelled",
+    frequency: "monthly",
+    customer: customers[8],
+    tea: teas.find { |t| t.title == "Hearthside Rooibos" }
+  },
+  {
+    title: "Abbey Road Break Room",
+    price: 13.99,
+    status: "active",
+    frequency: "weekly",
+    customer: customers[9],
+    tea: teas.find { |t| t.title == "Foggy London Breakfast" }
   }
 ])
 
-puts "Seeded Successfully!"
+puts "🎸 Seeded with classic rock subscriptions!"
